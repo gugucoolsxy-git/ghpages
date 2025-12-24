@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After Effects 官方参考手册 - 终极版</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --panel-color: #1e1e20;
+            --accent-color: #d2a8ff; /* Lighter Purple */
+            --accent-dim: #6e5ed6;
+            --text-main: #f0f0f0;
+            --text-sub: #a0a0a0;
+            --code-bg: #0d0d0d;
+            --border: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 80px; }
+
+        /* --- Header & Search --- */
+        header {
+            background: rgba(30, 30, 32, 0.95);
+            padding: 20px 0;
+            position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        h1 { font-weight: 300; letter-spacing: 1px; color: var(--accent-color); }
+        h1 span { font-size: 14px; background: #333; padding: 2px 8px; border-radius: 4px; color: #fff; vertical-align: middle; margin-left: 10px; }
+
+        .nav-buttons { display: flex; gap: 10px; }
+        .nav-btn {
+            background: transparent; border: 1px solid var(--accent-dim); color: var(--text-sub);
+            padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;
+        }
+        .nav-btn.active, .nav-btn:hover { background: var(--accent-dim); color: #fff; border-color: var(--accent-dim); }
+
+        .search-box {
+            position: relative; width: 100%; max-width: 600px; padding: 0 20px;
+        }
+        .search-input {
+            width: 100%; background: #000; border: 1px solid var(--border);
+            padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 16px;
+        }
+        .search-input:focus { outline: none; border-color: var(--accent-color); }
+
+        /* --- Layout --- */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: none; }
+        .container.active { display: block; }
+        
+        /* --- Grid System --- */
+        .exp-category { margin-bottom: 50px; }
+        .cat-head { 
+            font-size: 22px; color: #fff; margin-bottom: 20px; padding-bottom: 10px; 
+            border-bottom: 2px solid var(--accent-dim); display: flex; align-items: center; gap: 10px;
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+
+        /* --- Card Styling --- */
+        .card {
+            background: var(--panel-color); border: 1px solid var(--border); border-radius: 12px;
+            overflow: hidden; transition: transform 0.2s; display: flex; flex-direction: column;
+        }
+        .card:hover { transform: translateY(-3px); border-color: var(--accent-dim); }
+
+        /* Visual Area */
+        .card-visual {
+            height: 160px; background: #000; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .visual-tag { position: absolute; top: 10px; left: 10px; font-size: 11px; background: rgba(255,255,255,0.1); padding: 3px 6px; border-radius: 4px; }
+        
+        /* Content Area */
+        .card-content { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+        .card-title { color: var(--accent-color); font-family: monospace; font-size: 18px; margin-bottom: 5px; font-weight: bold; }
+        .card-desc { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; line-height: 1.5; flex: 1; }
+        
+        /* Code Box */
+        .code-box {
+            background: var(--code-bg); padding: 10px; border-radius: 6px;
+            font-family: 'Consolas', monospace; font-size: 13px;
+            border-left: 3px solid var(--accent-dim); overflow-x: auto; white-space: nowrap;
+        }
+        .hl-func { color: #ff79c6; } 
+        .hl-arg { color: #8be9fd; }
+        .hl-num { color: #bd93f9; }
+
+        /* --- Animation Elements --- */
+        .shape { width: 40px; height: 40px; background: var(--accent-color); border-radius: 6px; position: absolute; }
+        .shape-circle { width: 30px; height: 30px; background: #ff79c6; border-radius: 50%; position: absolute; }
+        
+        /* Grid BG for Visuals */
+        .grid-bg { 
+            background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px);
+            background-size: 20px 20px; width: 100%; height: 100%; opacity: 0.2; position: absolute; 
+        }
+
+        /* --- Special Animations --- */
+        /* Wiggle */
+        @keyframes wiggle { 0% {transform:translate(0,0)} 20% {transform:translate(-10px,5px)} 40% {transform:translate(5px,-10px)} 60% {transform:translate(-5px,10px)} 80% {transform:translate(8px,-5px)} 100% {transform:translate(0,0)} }
+        .a-wiggle { animation: wiggle 2s infinite linear; }
+        
+        /* Rotate */
+        @keyframes rot { to {transform: rotate(360deg);} }
+        .a-rot { animation: rot 3s infinite linear; }
+
+        /* Linear vs Ease */
+        .track { width: 80%; height: 2px; background: #444; position: relative; margin: 10px 0; }
+        .ball { width: 15px; height: 15px; border-radius: 50%; position: absolute; top: -6px; }
+        @keyframes moveRight { 0% {left:0} 100% {left:100%} }
+        .ball.linear { background: #888; animation: moveRight 2s infinite linear alternate; }
+        .ball.ease { background: var(--accent-color); animation: moveRight 2s infinite ease-in-out alternate; }
+
+        /* Color Cycle */
+        @keyframes colorCycle { 0% {background:#ff0000} 33% {background:#00ff00} 66% {background:#0000ff} 100% {background:#ff0000} }
+        .a-color { width: 60px; height: 60px; border-radius: 50%; animation: colorCycle 3s infinite linear; }
+
+        /* Vector Arrow */
+        .arrow { width: 60px; height: 4px; background: #fff; position: relative; }
+        .arrow::after { content:''; position:absolute; right:-5px; top:-4px; border: 6px solid transparent; border-left-color: #fff; }
+
+        /* Shortcut Key Styling */
+        .shortcut-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
+        .shortcut-row:last-child { border-bottom: none; }
+        .sc-key { background: #333; padding: 4px 8px; border-radius: 4px; border-bottom: 2px solid #111; font-family: monospace; color: #fff; font-size: 14px;}
+        .sc-plus { color: #666; font-size: 12px; margin: 0 5px; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <h1>After Effects 表达式字典 <span>Official Ref</span></h1>
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="switchTab('expressions')">📚 表达式大全</button>
+            <button class="nav-btn" onclick="switchTab('shortcuts')">⌨️ 快捷键列表</button>
+        </div>
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="搜索函数 (例如: wiggle, math, time)..." onkeyup="filterContent()">
+        </div>
+    </div>
+</header>
+
+<!-- ================= 表达式模块 ================= -->
+<div id="expressions" class="container active">
+
+    <!-- Category 1: 常用属性 & 全局 -->
+    <div class="exp-category">
+        <div class="cat-head">📌 属性与时间 (Global & Property)</div>
+        <div class="grid">
+            
+            <div class="card" data-tags="time duration loop">
+                <div class="card-visual">
+                    <div class="grid-bg"></div>
+                    <div class="shape a-rot"></div>
+                    <div class="visual-tag">时间驱动</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">time</div>
+                    <div class="card-desc">返回当前合成的时间（秒）。无需关键帧即可驱动旋转或移动。</div>
+                    <div class="code-box">rotation = <span class="hl-func">time</span> * <span class="hl-num">150</span></div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="wiggle random shake">
+                <div class="card-visual">
+                    <div class="grid-bg"></div>
+                    <div class="shape a-wiggle"></div>
+                    <div class="visual-tag">随机摆动</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">wiggle()</div>
+                    <div class="card-desc">最常用的随机函数。让数值在一定范围内随机波动。</div>
+                    <div class="code-box"><span class="hl-func">wiggle</span>(<span class="hl-arg">freq</span>, <span class="hl-arg">amp</span>)</div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="index layer count">
+                <div class="card-visual">
+                    <div style="display:flex; gap:5px;">
+                        <div class="shape" style="position:relative; transform:scale(0.6); opacity:0.3"></div>
+                        <div class="shape" style="position:relative; transform:scale(0.8); opacity:0.6"></div>
+                        <div class="shape" style="position:relative; transform:scale(1); opacity:1"></div>
+                    </div>
+                    <div class="visual-tag">图层序号</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">index</div>
+                    <div class="card-desc">返回当前图层的序号。常用于阶梯式排列或延迟动画。</div>
+                    <div class="code-box">position[0] = <span class="hl-func">index</span> * <span class="hl-num">100</span></div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="value current origin">
+                <div class="card-visual">
+                    <div class="grid-bg"></div>
+                    <div style="color:#666; font-size:40px; font-weight:bold;">540</div>
+                    <div class="visual-tag">原始数值</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">value</div>
+                    <div class="card-desc">代表当前属性在没有表达式时的数值（即你手动K的值）。常用于在原有动画基础上叠加效果。</div>
+                    <div class="code-box"><span class="hl-func">value</span> + wiggle(5,20)</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Category 2: 插值 (Interpolation) -->
+    <div class="exp-category">
+        <div class="cat-head">📈 插值函数 (Interpolation)</div>
+        <div class="grid">
+
+            <div class="card" data-tags="linear map range">
+                <div class="card-visual" style="flex-direction: column; justify-content: center; gap: 10px;">
+                   <div style="width:100%; padding:0 20px;">
+                       <div style="font-size:10px; color:#666; margin-bottom:5px;">Linear (匀速)</div>
+                       <div class="track"><div class="ball linear"></div></div>
+                   </div>
+                   <div class="visual-tag">范围映射</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">linear()</div>
+                    <div class="card-desc">将一个范围的数值映射到另一个范围。例如：声音越大，不透明度越高。</div>
+                    <div class="code-box"><span class="hl-func">linear</span>(t, <span class="hl-arg">tMin</span>, <span class="hl-arg">tMax</span>, <span class="hl-arg">val1</span>, <span class="hl-arg">val2</span>)</div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="ease smooth animation">
+                <div class="card-visual" style="flex-direction: column; justify-content: center; gap: 10px;">
+                    <div style="width:100%; padding:0 20px;">
+                        <div style="font-size:10px; color:var(--accent-color); margin-bottom:5px;">Ease (缓动)</div>
+                        <div class="track"><div class="ball ease"></div></div>
+                    </div>
+                    <div class="visual-tag">平滑过渡</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">ease()</div>
+                    <div class="card-desc">与 linear 类似，但首尾有缓动效果，运动更自然。</div>
+                    <div class="code-box"><span class="hl-func">ease</span>(t, <span class="hl-arg">min</span>, <span class="hl-arg">max</span>, <span class="hl-arg">v1</span>, <span class="hl-arg">v2</span>)</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Category 3: 向量与数学 (Vector & Math) -->
+    <div class="exp-category">
+        <div class="cat-head">📐 向量与数学 (Vector & Math)</div>
+        <div class="grid">
+
+            <div class="card" data-tags="lookat 3d point aim">
+                <div class="card-visual" id="lookAtDemo">
+                    <div class="arrow" id="lookArrow"></div>
+                    <div class="visual-tag">交互: 移动鼠标</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">lookAt()</div>
+                    <div class="card-desc">让一个层（通常是3D）总是面朝向另一个点。用于摄像机跟踪或眼球运动。</div>
+                    <div class="code-box"><span class="hl-func">lookAt</span>(<span class="hl-arg">fromPoint</span>, <span class="hl-arg">atPoint</span>)</div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="length distance proximity">
+                <div class="card-visual">
+                    <div class="grid-bg"></div>
+                    <div style="width:2px; height:60px; background:#666; transform:rotate(45deg);"></div>
+                    <div style="position:absolute; bottom:20px; right:40px; color:#fff; font-size:12px;">d = 145px</div>
+                    <div class="visual-tag">计算距离</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">length()</div>
+                    <div class="card-desc">计算两个点之间的距离（长度）。常用于根据距离触发动画。</div>
+                    <div class="code-box"><span class="hl-func">length</span>(point1, point2)</div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="sin cos wave math">
+                <div class="card-visual">
+                    <svg width="100%" height="100%" viewBox="0 0 200 100">
+                        <path d="M0 50 Q 25 0, 50 50 T 100 50 T 150 50 T 200 50" fill="none" stroke="#d2a8ff" stroke-width="2">
+                            <animate attributeName="d" dur="2s" repeatCount="indefinite" values="M0 50 Q 25 0, 50 50 T 100 50 T 150 50 T 200 50; M0 50 Q 25 100, 50 50 T 100 50 T 150 50 T 200 50; M0 50 Q 25 0, 50 50 T 100 50 T 150 50 T 200 50"/>
+                        </path>
+                    </svg>
+                    <div class="visual-tag">正弦波</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Math.sin()</div>
+                    <div class="card-desc">正弦函数。生成周期性的波动数值，用于钟摆、漂浮、呼吸灯。</div>
+                    <div class="code-box"><span class="hl-func">Math.sin</span>(time * speed)</div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="clamp limit restrict">
+                <div class="card-visual">
+                    <div style="width:80%; height:20px; border:1px solid #555; position:relative;">
+                        <div style="width:100%; height:100%; background:var(--accent-dim); transform:scaleX(0.7); transform-origin:left;"></div>
+                        <div style="position:absolute; right:0; top:-15px; font-size:10px; color:#888;">MAX</div>
+                    </div>
+                    <div class="visual-tag">限制范围</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">clamp()</div>
+                    <div class="card-desc">将数值限制在 min 和 max 之间。防止数值过大或过小。</div>
+                    <div class="code-box"><span class="hl-func">clamp</span>(val, <span class="hl-arg">min</span>, <span class="hl-arg">max</span>)</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Category 4: 随机与杂色 (Random) -->
+    <div class="exp-category">
+        <div class="cat-head">🎲 随机与杂色 (Random)</div>
+        <div class="grid">
+            
+            <div class="card" data-tags="random static seed">
+                <div class="card-visual">
+                    <div style="font-family:monospace; color:#fff; font-size:24px;">42.85</div>
+                    <div class="visual-tag">纯随机</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">random()</div>
+                    <div class="card-desc">返回 0-1 之间或指定范围内的随机数。</div>
+                    <div class="code-box"><span class="hl-func">random</span>(min, max)</div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="gauss distribution">
+                <div class="card-visual">
+                    <div style="display:flex; align-items:flex-end; gap:2px; height:60px;">
+                        <div style="width:4px; height:10%; background:#444;"></div>
+                        <div style="width:4px; height:30%; background:#555;"></div>
+                        <div style="width:4px; height:80%; background:#888;"></div>
+                        <div style="width:4px; height:100%; background:#fff;"></div>
+                        <div style="width:4px; height:80%; background:#888;"></div>
+                        <div style="width:4px; height:30%; background:#555;"></div>
+                        <div style="width:4px; height:10%; background:#444;"></div>
+                    </div>
+                    <div class="visual-tag">高斯分布</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">gaussRandom()</div>
+                    <div class="card-desc">正态分布随机。结果更有可能接近平均值，比 random() 更自然集中。</div>
+                    <div class="code-box"><span class="hl-func">gaussRandom</span>()</div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="seed lock random">
+                <div class="card-visual">
+                    <div style="border:2px solid var(--accent-color); padding:5px; border-radius:4px;">🔒 81</div>
+                    <div class="visual-tag">锁定随机</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">seedRandom()</div>
+                    <div class="card-desc">写在 random() 之前。如果设为 true，随机数将固定不变，不会每帧闪烁。</div>
+                    <div class="code-box"><span class="hl-func">seedRandom</span>(seed, <span class="hl-arg">true</span>)</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Category 5: 颜色 (Color) -->
+    <div class="exp-category">
+        <div class="cat-head">🎨 颜色转换 (Color)</div>
+        <div class="grid">
+            <div class="card" data-tags="rgb hsl color">
+                <div class="card-visual">
+                    <div class="a-color"></div>
+                    <div class="visual-tag">色相循环</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">hslToRgb()</div>
+                    <div class="card-desc">将 HSL (色相/饱和度/亮度) 转换为 RGB。非常适合做彩虹流光效果。</div>
+                    <div class="code-box"><span class="hl-func">hslToRgb</span>([<span class="hl-arg">h</span>, <span class="hl-arg">s</span>, <span class="hl-arg">l</span>, <span class="hl-arg">a</span>])</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Category 6: 层空间 (Layer Space) -->
+     <div class="exp-category">
+        <div class="cat-head">🌌 空间转换 (Layer Space)</div>
+        <div class="grid">
+            <div class="card" data-tags="tocomp 3d 2d convert">
+                <div class="card-visual">
+                    <div style="perspective:100px;">
+                        <div style="transform:rotateX(20deg); width:40px; height:40px; border:1px solid #666; margin:0 auto;"></div>
+                    </div>
+                    <div style="position:absolute; width:4px; height:4px; background:#fff; border-radius:50%;"></div>
+                    <div class="visual-tag">3D转2D</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">toComp()</div>
+                    <div class="card-desc">将图层内部的 3D 坐标点转换为合成视图的 2D 坐标。用于做 2D UI 追踪 3D 物体。</div>
+                    <div class="code-box">layer.<span class="hl-func">toComp</span>([0,0,0])</div>
+                </div>
+            </div>
+
+            <div class="card" data-tags="sourcerect ui text">
+                <div class="card-visual">
+                    <div style="border:1px dashed var(--accent-color); padding:10px; color:#fff; font-size:12px;">Auto Width</div>
+                    <div class="visual-tag">自适应尺寸</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">sourceRectAtTime()</div>
+                    <div class="card-desc">获取文本或形状图层的实时边界框（宽、高、上边距等）。UI 自动化神器。</div>
+                    <div class="code-box">x.<span class="hl-func">sourceRectAtTime</span>().width</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= 快捷键模块 ================= -->
+<div id="shortcuts" class="container">
+    <div class="exp-category">
+        <div class="cat-head">⌨️ 常用快捷键列表</div>
+        <div class="card" style="padding:0;">
+            
+            <div class="shortcut-row">
+                <span>显示所有关键帧属性 (Uber Key)</span>
+                <span class="sc-key">U</span>
+            </div>
+            <div class="shortcut-row">
+                <span>位置 (Position)</span>
+                <span class="sc-key">P</span>
+            </div>
+            <div class="shortcut-row">
+                <span>缩放 (Scale)</span>
+                <span class="sc-key">S</span>
+            </div>
+            <div class="shortcut-row">
+                <span>旋转 (Rotation)</span>
+                <span class="sc-key">R</span>
+            </div>
+            <div class="shortcut-row">
+                <span>不透明度 (Opacity)</span>
+                <span class="sc-key">T</span>
+            </div>
+            <div class="shortcut-row">
+                <span>添加表达式</span>
+                <div><span class="sc-key">Alt</span><span class="sc-plus">+</span><span class="sc-key">Click ⏱️</span></div>
+            </div>
+            <div class="shortcut-row">
+                <span>缓动 (Easy Ease)</span>
+                <span class="sc-key">F9</span>
+            </div>
+            <div class="shortcut-row">
+                <span>切断图层(前)</span>
+                <div><span class="sc-key">Alt</span><span class="sc-plus">+</span><span class="sc-key">[</span></div>
+            </div>
+            <div class="shortcut-row">
+                <span>切断图层(后)</span>
+                <div><span class="sc-key">Alt</span><span class="sc-plus">+</span><span class="sc-key">]</span></div>
+            </div>
+             <div class="shortcut-row">
+                <span>跳转到图层入点</span>
+                <span class="sc-key">I</span>
+            </div>
+             <div class="shortcut-row">
+                <span>跳转到图层出点</span>
+                <span class="sc-key">O</span>
+            </div>
+            <div class="shortcut-row">
+                <span>渲染队列</span>
+                <div><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">M</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab Switching
+    function switchTab(tabId) {
+        document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        
+        let buttons = document.querySelectorAll('.nav-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        if(tabId === 'expressions') buttons[0].classList.add('active');
+        else buttons[1].classList.add('active');
+    }
+
+    // Search Filter
+    function filterContent() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let cards = document.querySelectorAll('.card');
+        
+        cards.forEach(card => {
+            let text = card.textContent.toLowerCase();
+            let tags = card.getAttribute('data-tags') || "";
+            if (text.includes(input) || tags.includes(input)) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
+        });
+
+        // Hide empty categories
+        document.querySelectorAll('.exp-category').forEach(cat => {
+            let visibleCards = cat.querySelectorAll('.card[style="display: flex;"]');
+            // Check if any card is visible (default is flex via css, but inline overrides)
+            let hasVisible = Array.from(cat.querySelectorAll('.card')).some(c => c.style.display !== 'none');
+            cat.style.display = hasVisible ? 'block' : 'none';
+        });
+    }
+
+    // Interactive LookAt Demo
+    const demoArea = document.getElementById('lookAtDemo');
+    const arrow = document.getElementById('lookArrow');
+    
+    demoArea.addEventListener('mousemove', (e) => {
+        const rect = demoArea.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const deltaX = e.clientX - centerX;
+        const deltaY = e.clientY - centerY;
+        const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+        arrow.style.transform = `rotate(${angle}deg)`;
+    });
+</script>
+
+</body>
+</html>
